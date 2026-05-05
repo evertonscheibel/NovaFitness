@@ -1,185 +1,64 @@
-# 💪 NovaFitness AI Trainer
+# 🏋️ NovaFitness — Ecossistema Inteligente para Academias
 
-Sistema completo de gerenciamento de treinos com IA integrada. Permite cadastro de alunos, geração automática de treinos personalizados usando IA, aprovação por treinadores, área do aluno com PWA/Mobile, e geração de PDFs.
+Plataforma completa de gestão fitness que conecta gestores, instrutores e alunos através de uma interface web robusta e aplicativo mobile integrado.
 
-## 🚀 Tecnologias
+![Status](https://img.shields.io/badge/status-active-success.svg)
+![React](https://img.shields.io/badge/react-18-blue.svg)
+![React Native](https://img.shields.io/badge/react_native-mobile-blue.svg)
+![TypeScript](https://img.shields.io/badge/typescript-5-blue.svg)
+![MongoDB](https://img.shields.io/badge/mongodb-latest-brightgreen.svg)
 
-### Backend
-- **Node.js** + **Express** + **TypeScript** - Servidor e API REST
-- **MongoDB** + **Prisma ORM** - Banco de dados
-- **OpenAI API / Groq** - Geração de treinos com IA
-- **PDFKit** - Geração de PDFs
+## 🌟 Funcionalidades Principais
 
-### Frontend Web
-- **React 18** + **Vite** - Interface do usuário
-- **Tailwind CSS** - Estilização
-- **Lucide React** - Ícones
-- **Recharts** - Gráficos de evolução
-- **PWA-ready** - Instalável como aplicativo
+- **🤖 Personal Trainer IA**: Inteligência artificial para auxílio na montagem de treinos e análise de progresso.
+- **📱 App do Aluno (Mobile)**: Acesso a fichas de treino, histórico de check-ins e acompanhamento de evolução.
+- **👨‍🏫 Painel do Instrutor**: Gestão simplificada de alunos, criação de fichas e avaliação física.
+- **💰 Gestão Financeira**: Controle de mensalidades, planos e pagamentos.
+- **📍 Check-in e Presença**: Sistema de controle de fluxo de alunos na unidade.
+- **📊 Dashboard Analítico**: KPIs de retenção, faturamento e ocupação.
 
-### Mobile
-- **Expo** (React Native) + **TypeScript** - App nativo
-- **Lucide React Native** - Ícones
+## 🛠️ Stack Tecnológica
 
-## 📱 Estrutura do Projeto
+### Monorepo Structure
+- **`/server`**: API robusta em **Node.js** com **TypeScript** e **MongoDB**.
+- **`/client`**: Painel Administrativo/Web desenvolvido em **React**.
+- **`/mobile`**: Aplicativo móvel multiplataforma em **React Native**.
+- **`/shared`**: Código compartilhado (tipagens e lógica) entre os projetos.
 
-```
-NovaFitness/
-├── server/          # Backend (Node.js + Express + TypeScript)
-├── client/          # Frontend Web (React + Vite + Tailwind)
-├── mobile/          # App Mobile (Expo + React Native)
-├── shared/          # Tipos e utilitários compartilhados
-└── MIGRACAO_SISTEMA.md # Guia completo de migração
-```
-
-## 📦 Migração para Outra Máquina
-
-Se você deseja levar este sistema para outro computador, siga o guia completo:
-👉 **[Guia de Migração](./MIGRACAO_SISTEMA.md)**
-
-### Preparação Rápida
-Execute o script na raiz para preparar os arquivos para o ZIP:
-```powershell
-.\PREPARAR_MIGRACAO.ps1
-```
-
-## 🔧 Instalação e Execução
+## 🚀 Como Iniciar
 
 ### Pré-requisitos
 - Node.js 18+
-- MongoDB (local ou Atlas)
+- Docker (opcional, para MongoDB)
 
-### Backend
+### Instalação
 
-```bash
-cd server
-npm install
-cp .env.example .env  # Configure suas variáveis
-npm run prisma:generate
-npm run seed  # Popula o banco com dados de teste
-npm run dev
-```
+1. **Configurar o Servidor**:
+   ```bash
+   cd server
+   npm install
+   npm run seed    # Popula o banco com exercícios padrão
+   npm run dev
+   ```
 
-O servidor estará rodando em: `http://localhost:5000`
+2. **Configurar o Painel Web**:
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   ```
 
-### Deploy no Render
-- **Health Check Path**: Defina como `/health` nas configurações do Render.
-- **Environment Variables**:
-  - `PORT`: (Injetado automaticamente pelo Render)
-  - `NODE_ENV`: `production`
-  - `CORS_ORIGINS`: Lista separada por vírgula dos domínios permitidos.
-  - `DATABASE_URL`: URL de conexão do MongoDB Atlas.
+3. **Configurar o App Mobile**:
+   ```bash
+   cd mobile
+   npm install
+   npx react-native run-android # ou run-ios
+   ```
 
-### Frontend Web
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-O frontend estará rodando em: `http://localhost:5173`
-
-### Mobile (Expo)
-
-```bash
-cd mobile
-npm install
-npx expo start
-```
-
-Escaneie o QR Code com o app Expo Go no seu celular.
-
-## 📋 Variáveis de Ambiente (.env)
-
-```env
-# MongoDB
-DATABASE_URL=mongodb://localhost:27017/novafitness?replicaSet=rs0
-
-# Servidor
-PORT=5000
-
-# IA Provider: 'mock' (gratuito) ou 'openai' (requer chave)
-IA_PROVIDER=mock
-OPENAI_API_KEY=sua_chave_openai  # Opcional
-
-# CORS
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# URL base para links de acesso
-APP_BASE_URL=http://localhost:5173
-```
-
-## 🎯 Fluxos Principais
-
-### 1. Cadastro de Aluno
-1. Treinador cadastra aluno com anamnese
-2. Sistema gera sugestão de treino via IA
-3. Status: `Pendente`
-
-### 2. Aprovação de Treino
-1. Treinador revisa sugestão
-2. Aprova ou ajusta exercícios
-3. Treino se torna `Vigente`
-
-### 3. Publicação para Aluno
-1. Treinador publica treino
-2. Sistema cria snapshot imutável (WorkoutPublication)
-3. Gera token de acesso seguro
-
-### 4. Área do Aluno (Web/Mobile)
-- Acesso via token (não expõe IDs)
-- Visualiza treino de hoje
-- **PREMIUM**: Registra execução (FEITO/NÃO FIZ/SUBSTITUI)
-- **PREMIUM**: Acompanha evolução (peso, medidas, energia)
-
-## 🔌 API Endpoints
-
-### Student Area (Token-based)
-- `POST /api/student-area/link/:studentId` - Gera token
-- `GET /api/student-area/by-token/:token` - Perfil + treino
-
-### Publications
-- `POST /api/publications/publish` - Publica treino
-- `GET /api/publications/student/:studentId` - Lista publicações
-
-### Logs (PREMIUM)
-- `POST /api/logs/exercise` - Registra execução
-- `GET /api/logs/me?from=&to=` - Histórico
-
-### Progress (PREMIUM)
-- `POST /api/progress/me` - Registra evolução
-- `GET /api/progress/me?from=&to=` - Histórico
-
-### Manager AI Copilot
-- `POST /api/manager-ai/summary-week` - Resumo semanal
-- `POST /api/manager-ai/risk-dropout` - Risco de abandono
-- `POST /api/manager-ai/retention-plan` - Plano de retenção
-
-## 🧪 Dados de Teste
-
-Após rodar `npm run seed`, você terá:
-- 10 exercícios no catálogo
-- 2 alunos: BASE e PREMIUM
-- 1 treino publicado
-- Tokens de acesso:
-  - BASE: `demo-token-base-001`
-  - PREMIUM: `demo-token-premium-001`
-
-## 🔒 Planos (BASE vs PREMIUM)
-
-| Funcionalidade | BASE | PREMIUM |
-|---------------|------|---------|
-| Ver treino | ✅ | ✅ |
-| Gerar PDF | ✅ | ✅ |
-| Registrar logs | ❌ | ✅ |
-| Acompanhar evolução | ❌ | ✅ |
-| PRs (recordes) | ❌ | ✅ |
-
-## 📝 Licença
-
-MIT
+## 🔐 Diferenciais
+- **Arquitetura Escalável**: Separação clara entre mobile e web com lógica compartilhada.
+- **IA First**: Foco em personalização de treinos usando modelos de linguagem.
+- **Offline Ready**: Funcionalidades críticas preparadas para o ambiente mobile.
 
 ---
-
-**🎯 Powered by AI | NovaFitness 2024 💪**
+Desenvolvido por **Everton Scheibel**

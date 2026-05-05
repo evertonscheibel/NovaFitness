@@ -1,0 +1,298 @@
+import Suggestion from '../models/suggestion.model.js';
+import Workout from '../models/workout.model.js';
+import Student from '../models/student.model.js';
+import PDFDocument from 'pdfkit';
+
+// Listar sugestões pendentes
+export const getPendingSuggestions = async (req, res) => {
+    try {
+        const suggestions = await Suggestion.find({ status: 'Pendente' })
+            .populate('aluno_id')
+            .sort({ criado_em: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: suggestions.length,
+            data: suggestions
+        });
+    } catch (error) {
+        console.error('Erro ao listar sugestões:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao listar sugestões',
+            error: error.message
+        });
+    }
+};
+
+// Aprovar sugestão e criar treino
+export const approveSuggestion = async (req, res) => {
+    try {
+        const { suggestionId } = req.params;
+        const { treinador, prescricao_editada, validade_inicio, validade_fim, observacoes } = req.body;
+
+        const suggestion = await Suggestion.findById(suggestionId);
+
+        if (!suggestion) {
+            return res.status(404).json({
+                success: false,
+                message: 'Sugestão não encontrada'
+            });
+        }
+
+        // Usar prescrição editada se fornecida, senão usar a original
+        const prescricao = prescricao_editada || suggestion.json_sugestao.prescricao;
+
+        // Criar treino aprovado
+        const workout = new Workout({
+            aluno_id: suggestion.aluno_id,
+            prescricao: prescricao_editada || suggestion.json_sugestao,
+            treinador: treinador || 'Sistema',
+            aprovado_em: new Date(),
+            validade_inicio: validade_inicio,
+            validade_fim: validade_fim,
+            observacoes: observacoes,
+            status: 'Vigente'
+        });
+
+        await workout.save();
+
+        // Atualizar status da sugestão
+        suggestion.status = 'Aprovado';
+        await suggestion.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Treino aprovado com sucesso',
+            data: workout
+        });
+    } catch (error) {
+        console.error('Erro ao aprovar sugestão:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao aprovar sugestão',
+            error: error.message
+        });
+    }
+};
+
+// Gerar PDF do treino
+export const generateWorkoutPDF = async (req, res) => {
+    try {
+        const { workoutId } = req.params;
+
+        const workout = await Workout.findById(workoutId).populate('aluno_id');
+
+        if (!workout) {
+            return res.status(404).json({
+                success: false,
+                message: 'Treino não encontrado'
+            });
+        }
+
+        const aluno = workout.aluno_id;
+        const prescricao = workout.prescricao.prescricao || workout.prescricao;
+
+        // Criar PDF
+        const doc = new PDFDocument({ margin: 50 });
+
+        // Configurar headers para download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=treino_${aluno.nome.replace(/\s/g, '_')}.pdf`);
+
+        doc.pipe(res);
+
+        // Cabeçalho
+        doc.fontSize(20).font('Helvetica-Bold').text('NOVA FITNESS', { align: 'center' });
+        doc.fontSize(16).text('Ficha de Treino', { align: 'center' });
+        doc.moveDown();
+
+        // Dados do aluno
+        doc.fontSize(12).font('Helvetica-Bold').text('DADOS DO ALUNO', { underline: true });
+        doc.moveDown(0.5);
+        doc.font('Helvetica');
+        doc.text(`Nome: ${aluno.nome}`);
+        doc.text(`Idade: ${aluno.idade} anos`);
+        doc.text(`Objetivo: ${aluno.objetivo_principal}`);
+        doc.text(`Experiência: ${aluno.experiencia_prev}`);
+        if (aluno.restricoes_medicas && aluno.restricoes_medicas !== 'Nenhuma') {
+            doc.text(`Restrições: ${aluno.restricoes_medicas}`);
+        }
+
+        // Vigência
+        if (workout.validade_inicio && workout.validade_fim) {
+            const inicio = new Date(workout.validade_inicio).toLocaleDateString('pt-BR');
+            const fim = new Date(workout.validade_fim).toLocaleDateString('pt-BR');
+            doc.text(`Vigência: ${inicio} a ${fim}`);
+        }
+        doc.moveDown();
+
+        // Informações do treino
+        doc.font('Helvetica-Bold').text('PROGRAMA DE TREINO', { underline: true });
+        doc.moveDown(0.5);
+        doc.font('Helvetica');
+        doc.text(`Modelo: ${prescricao.modelo || 'AB'}`);
+        doc.text(`Dias da semana: ${prescricao.dias_semana ? prescricao.dias_semana.join(', ') : 'A, B'}`);
+        doc.moveDown();
+
+        // Sessões de treino
+        if (prescricao.sessoes && prescricao.sessoes.length > 0) {
+            prescricao.sessoes.forEach((sessao, index) => {
+                doc.font('Helvetica-Bold').fontSize(14).text(`TREINO ${sessao.dia}`, { underline: true });
+                doc.moveDown(0.5);
+                doc.fontSize(10).font('Helvetica');
+
+                if (sessao.itens && sessao.itens.length > 0) {
+                    sessao.itens.forEach((item, idx) => {
+                        doc.text(`${idx + 1}. ${item.nome_exercicio}`);
+                        doc.text(`   Séries: ${item.series} | Repetições: ${item.reps} | Carga: ${item.carga_sugerida} | Descanso: ${item.descanso_seg}s`);
+                        if (item.observacoes) {
+                            doc.fontSize(9).fillColor('gray').text(`   Obs: ${item.observacoes}`).fillColor('black').fontSize(10);
+                        }
+                        doc.moveDown(0.3);
+                    });
+                }
+                doc.moveDown();
+            });
+        }
+
+        // Cardio
+        if (prescricao.cardio) {
+            doc.font('Helvetica-Bold').fontSize(12).text('CARDIO');
+            doc.font('Helvetica').fontSize(10);
+            doc.text(`Tipo: ${prescricao.cardio.tipo}`);
+            doc.text(`Duração: ${prescricao.cardio.duracao_min} minutos`);
+            doc.text(`Intensidade: ${prescricao.cardio.intensidade}`);
+            doc.moveDown();
+        }
+
+        // Observações
+        if (prescricao.observacao_agente || workout.observacoes) {
+            doc.font('Helvetica-Bold').text('OBSERVAÇÕES:');
+            if (prescricao.observacao_agente) {
+                doc.font('Helvetica').text(`IA: ${prescricao.observacao_agente}`);
+            }
+            if (workout.observacoes) {
+                doc.font('Helvetica').text(`Treinador: ${workout.observacoes}`);
+            }
+            doc.moveDown();
+        }
+
+        // Rodapé
+        doc.moveDown(2);
+        doc.fontSize(10).text(`Aprovado por: ${workout.treinador}`, { align: 'left' });
+        doc.text(`Data: ${new Date(workout.aprovado_em).toLocaleDateString('pt-BR')}`, { align: 'left' });
+
+        doc.end();
+    } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao gerar PDF',
+            error: error.message
+        });
+    }
+};
+
+// Listar todos os treinos aprovados
+export const getAllWorkouts = async (req, res) => {
+    try {
+        const workouts = await Workout.find()
+            .populate('aluno_id')
+            .sort({ aprovado_em: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: workouts.length,
+            data: workouts
+        });
+    } catch (error) {
+        console.error('Erro ao listar treinos:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao listar treinos',
+            error: error.message
+        });
+    }
+};
+
+
+// Criar treino manual
+export const createManual = async (req, res) => {
+    try {
+        const { aluno_id, modelo, validade_inicio, validade_fim, sessoes, treinador, observacoes } = req.body;
+
+        const student = await Student.findById(aluno_id);
+        if (!student) {
+            return res.status(404).json({ success: false, message: 'Aluno n�o encontrado' });
+        }
+
+        const prescricao = {
+            modelo,
+            dias_semana: sessoes.map(s => s.dia),
+            sessoes: sessoes.map(sessao => ({
+                dia: sessao.dia,
+                itens: sessao.exercicios.map((ex, idx) => ({
+                    ordem: idx + 1,
+                    exercicio_id: ex.exercicio_id,
+                    nome_exercicio: ex.nome,
+                    series: ex.series,
+                    reps: ex.reps,
+                    carga_sugerida: ex.carga,
+                    descanso_seg: ex.descanso_seg,
+                    observacoes: ex.observacoes || ''
+                }))
+            }))
+        };
+
+        const workout = await Workout.create({
+            aluno_id,
+            prescricao,
+            validade_inicio,
+            validade_fim,
+            treinador,
+            observacoes,
+            status: 'Vigente'
+        });
+
+        res.status(201).json({ success: true, data: workout });
+    } catch (error) {
+        console.error('Erro ao criar treino manual:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+// Obter treino por ID
+export const getWorkoutById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const workout = await Workout.findById(id).populate('aluno_id');
+
+        if (!workout) {
+            return res.status(404).json({ success: false, message: 'Treino n�o encontrado' });
+        }
+
+        res.status(200).json({ success: true, data: workout });
+    } catch (error) {
+        console.error('Erro ao buscar treino:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Deletar treino
+export const deleteWorkout = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const workout = await Workout.findByIdAndDelete(id);
+
+        if (!workout) {
+            return res.status(404).json({ success: false, message: 'Treino n�o encontrado' });
+        }
+
+        res.status(200).json({ success: true, message: 'Treino exclu�do com sucesso' });
+    } catch (error) {
+        console.error('Erro ao excluir treino:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

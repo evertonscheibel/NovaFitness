@@ -1,0 +1,56 @@
+GUIA DE RENOMEAÇÃO DE IMAGENS
+
+Para que o sistema reconheça as imagens, renomeie seus arquivos na pasta "imagens" para conter um dos seguintes nomes:
+
+EXERCÍCIO -> NOME DO ARQUIVO ESPERADO (pode ser .jpg, .png, .jpeg)
+----------------------------------------------------------------
+Supino Reto com Barra                    -> supino-reto-com-barra
+Supino Inclinado com Barra               -> supino-inclinado-com-barra
+Supino Declinado                         -> supino-declinado
+Supino com Halteres                      -> supino-com-halteres
+Crucifixo com Halteres                   -> crucifixo-com-halteres
+Crucifixo no Cabo                        -> crucifixo-no-cabo
+Flexão de Braço                          -> flexao-de-braco
+Flexão Declinada                         -> flexao-declinada
+Peck Deck (Voador)                       -> peck-deck--voador-
+Supino na Máquina                        -> supino-na-maquina
+Barra Fixa (Pull-up)                     -> barra-fixa--pull-up-
+Puxada Frontal                           -> puxada-frontal
+Remada Curvada com Barra                 -> remada-curvada-com-barra
+Remada com Halteres                      -> remada-com-halteres
+Remada Cavalinho                         -> remada-cavalinho
+Remada Baixa                             -> remada-baixa
+Levantamento Terra                       -> levantamento-terra
+Pulldown com Pegada Neutra               -> pulldown-com-pegada-neutra
+Remada Invertida                         -> remada-invertida
+Pullover com Halter                      -> pullover-com-halter
+Agachamento Livre                        -> agachamento-livre
+Leg Press 45°                            -> leg-press-45-
+Agachamento Sumô                         -> agachamento-sumo
+Stiff (Levantamento Terra Romeno)        -> stiff--levantamento-terra-romeno-
+Cadeira Extensora                        -> cadeira-extensora
+Mesa Flexora                             -> mesa-flexora
+Afundo com Halteres                      -> afundo-com-halteres
+Agachamento Búlgaro                      -> agachamento-bulgaro
+Panturrilha em Pé                        -> panturrilha-em-pe
+Panturrilha Sentado                      -> panturrilha-sentado
+Desenvolvimento com Barra                -> desenvolvimento-com-barra
+Desenvolvimento com Halteres             -> desenvolvimento-com-halteres
+Elevação Lateral                         -> elevacao-lateral
+Elevação Frontal                         -> elevacao-frontal
+Remada Alta                              -> remada-alta
+Crucifixo Inverso                        -> crucifixo-inverso
+Desenvolvimento Arnold                   -> desenvolvimento-arnold
+Elevação Lateral no Cabo                 -> elevacao-lateral-no-cabo
+Rosca Direta com Barra                   -> rosca-direta-com-barra
+Rosca Alternada com Halteres             -> rosca-alternada-com-halteres
+Rosca Martelo                            -> rosca-martelo
+Rosca Scott                              -> rosca-scott
+Rosca Concentrada                        -> rosca-concentrada
+Rosca no Cabo                            -> rosca-no-cabo
+Tríceps Testa (Lying Triceps)            -> triceps-testa--lying-triceps-
+Tríceps Corda (Pushdown)                 -> triceps-corda--pushdown-
+Tríceps Francês                          -> triceps-frances
+Mergulho em Paralelas                    -> mergulho-em-paralelas
+Tríceps Coice                            -> triceps-coice
+Tríceps Supinado                         -> triceps-supinado

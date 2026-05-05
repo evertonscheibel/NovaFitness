@@ -1,0 +1,241 @@
+/* Student Area Design System */
+:root {
+    --sa-bg: #0F172A;
+    --sa-card: #1E293B;
+    --sa-primary: #F97316;
+    --sa-text: #F1F5F9;
+    --sa-text-sec: #94A3B8;
+    --sa-success: #10B981;
+    --sa-error: #EF4444;
+    --sa-border: #334155;
+
+    --sa-spacing: 8px;
+    --sa-radius: 12px;
+    --sa-nav-height: calc(64px + env(safe-area-inset-bottom));
+}
+
+.student-area-root {
+    background-color: var(--sa-bg);
+    color: var(--sa-text);
+    min-height: 100dvh;
+    font-family: 'Inter', -apple-system, sans-serif;
+    overscroll-behavior: contain;
+    padding-bottom: var(--sa-nav-height);
+    box-sizing: border-box;
+}
+
+.sa-container {
+    padding: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.sa-card {
+    background: var(--sa-card);
+    border-radius: var(--sa-radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--sa-border);
+}
+
+.sa-btn-primary {
+    background: var(--sa-primary);
+    color: white;
+    height: 56px;
+    border-radius: var(--sa-radius);
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    user-select: none;
+}
+
+.sa-btn-primary:active {
+    opacity: 0.8;
+}
+
+.sa-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--sa-nav-height);
+    background: var(--sa-card);
+    border-top: 1px solid var(--sa-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
+}
+
+.sa-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--sa-text-sec);
+    text-decoration: none;
+    font-size: 12px;
+    flex: 1;
+    height: 100%;
+    justify-content: center;
+}
+
+.sa-nav-item.active {
+    color: var(--sa-primary);
+}
+
+.sa-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.sa-subtitle {
+    font-size: 14px;
+    color: var(--sa-text-sec);
+    margin-bottom: 16px;
+}
+
+.sa-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sa-badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+}
+
+.sa-badge-orange {
+    background: rgba(249, 115, 22, 0.15);
+    color: #F97316;
+}
+
+/* Modal / Bottom Sheet Overlay */
+.sa-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-end;
+}
+
+.sa-bottom-sheet {
+    background: var(--sa-card);
+    width: 100%;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 24px 16px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Skeleton Loading */
+.sa-skeleton {
+    background: var(--sa-border);
+    border-radius: 4px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
+
+/* Drawer / Sidebar */
+.sa-drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 3000;
+    display: flex;
+}
+
+.sa-drawer {
+    background: var(--sa-bg);
+    width: 280px;
+    height: 100%;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.sa-drawer-header {
+    padding: 24px 16px;
+    border-bottom: 1px solid var(--sa-border);
+    margin-bottom: 8px;
+}
+
+.sa-drawer-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    color: var(--sa-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.sa-drawer-item:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sa-drawer-item svg {
+    color: var(--sa-text-sec);
+}
+
+.sa-drawer-footer {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid var(--sa-border);
+}
